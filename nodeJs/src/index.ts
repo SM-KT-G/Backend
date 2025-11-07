@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import apiRoutes from './routes/api';
+import exchangeRateRouter from './routes/exchangeRate.route';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,15 @@ app.get('/', (req, res) => {
 
 
 app.use('/api', apiRoutes);
+
+// 추후 router 추가 예정
+app.use('/api/exchangeRates', exchangeRateRouter);
+
+
+
+
+
+
 
 // Start server
 app.listen(PORT, () => {
