@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import ExchangeRateService from "../services/exchangeRate.service";
 
 class ExchangeRateController {
-    /**
-     * 모든 환율 정보를 가져오는 컨트롤러 메소드입니다.
-     * @param req Express 요청 객체
-     * @param res Express 응답 객체
-     */
+  /**
+   * 모든 환율 정보를 가져오는 컨트롤러 메소드입니다.
+   * @param req Express 요청 객체
+   * @param res Express 응답 객체
+   */
   static getExchangeRates = async (req: Request, res: Response) => {
     try {
       const rates = await ExchangeRateService.getAllExchangeRates();
