@@ -74,3 +74,10 @@ const response = await axios.get<OpenWeatherApiResponse>(
         console.error(`Unexpected error (Weather): ${error}`);
       }
       throw new Error("날씨 정보를 가져오는 데 실패했습니다.");
+
+      /**
+   * 특정 위도와 경도를 기반으로 현재 날씨 정보를 가져옵니다.
+   * @param lat 위도
+   * @param lon 경도
+   * @returns 가공된 날씨 정보(WeatherInfo) Promise 객체
+   */
