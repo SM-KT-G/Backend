@@ -46,6 +46,8 @@ const response = await axios.get<OpenWeatherApiResponse>(
             lat: lat,
             lon: lon,
             appid: process.env.OPENWEATHER_API_KEY, 
+            units: "metric", // 섭씨 온도 사용
+            lang: "kr", // 한국어 설명
           },
         }
       );
