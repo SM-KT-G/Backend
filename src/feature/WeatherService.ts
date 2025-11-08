@@ -65,3 +65,12 @@ const response = await axios.get<OpenWeatherApiResponse>(
         description: weatherData.description,
         icon: weatherData.icon,
       };
+
+      if (axios.isAxiosError(error)) {
+        console.error(
+          `API Error (Weather) : ${error.response?.status}: ${error.message}`
+        );
+      } else {
+        console.error(`Unexpected error (Weather): ${error}`);
+      }
+      throw new Error("날씨 정보를 가져오는 데 실패했습니다.");
