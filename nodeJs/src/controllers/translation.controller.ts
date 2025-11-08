@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import TranslationService from '../services/translation.service';
+import translationService from '../services/translation.service';
 import { TranslationRequest, TranslationError, TranslationResponse } from '../types/translation';
 
 class TranslationController {
@@ -15,7 +15,7 @@ class TranslationController {
         res.status(400).json(errorResponse);
         return;
       }
-      const result: TranslationResponse = await TranslationService.translateJapaneseToKorean({
+      const result: TranslationResponse = await translationService.translateJapaneseToKorean({
         text,
         sourceLang,
         targetLang,
