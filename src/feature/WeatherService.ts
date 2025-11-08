@@ -39,3 +39,13 @@ const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
       // 내용은 비워둠
     }
   }
+const response = await axios.get<OpenWeatherApiResponse>(
+        OPENWEATHER_API_URL,
+        {
+          params: {
+            lat: lat,
+            lon: lon,
+            appid: process.env.OPENWEATHER_API_KEY, 
+          },
+        }
+      );
