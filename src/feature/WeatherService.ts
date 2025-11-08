@@ -12,3 +12,18 @@ export interface WeatherInfo {
   description: string;
   icon: string;
 }
+
+interface OpenWeatherApiResponse {
+  weather: [
+    {
+      description: string;
+      icon: string;
+    }
+  ];
+  main: {
+    temp: number;
+    feels_like: number;
+    temp_min: number;
+    temp_max: number;
+  };
+}
