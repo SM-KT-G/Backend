@@ -29,3 +29,13 @@ interface OpenWeatherApiResponse {
 }
 
 const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
+  static async getCurrentWeather(
+    lat: number,
+    lon: number
+  ): Promise<WeatherInfo> {
+    try {
+      // 내용은 비워둠
+    } catch (error) {
+      // 내용은 비워둠
+    }
+  }
