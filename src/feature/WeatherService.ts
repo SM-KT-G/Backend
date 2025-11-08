@@ -51,3 +51,17 @@ const response = await axios.get<OpenWeatherApiResponse>(
           },
         }
       );
+
+      // API 원본 데이터를 우리가 사용할 WeatherInfo 형태로 가공
+      const { data } = response;
+      const weatherData = data.weather[0];
+      const mainData = data.main;
+
+      return {
+        temp: mainData.temp,
+        feels_like: mainData.feels_like,
+        temp_min: mainData.temp_min,
+        temp_max: mainData.temp_max,
+        description: weatherData.description,
+        icon: weatherData.icon,
+      };
