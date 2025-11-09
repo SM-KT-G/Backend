@@ -14,7 +14,17 @@ class NavigationService {
     destination: Coordinates
   ): Promise<RouteInfo> {
     try {
-      // API 호출 로직 (다음 단계에 추가)
+      const response = await axios.get<NcpDirectionsApiResponse>(
+        NAVER_DIRECTIONS_API_URL,
+        {
+          params: {
+            // 네이버 파라미터: start, goal (경도,위도 순서)
+            start: `${origin.lon},${origin.lat}`,
+            goal: `${destination.lon},${destination.lat}`,
+          },
+        }
+      );
+
     } catch (error) {
       // 에러 핸들링 로직 (마지막 단계에 추가)
     }
