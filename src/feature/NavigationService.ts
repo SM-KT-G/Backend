@@ -30,22 +30,28 @@ class NavigationService {
 
       const { data } = response;
 
-      // [검증 로직]
-      // 1. API 응답 코드가 0(성공)이 아닌 경우
       if (data.code !== 0) {
         console.error(
           `API Error (Navigation): ${data.code} - ${data.message}`
         );
         throw new Error(`경로 API 응답 오류: ${data.message}`);
       }
-
-      // 2. 경로 정보가 없는 경우
+      
       if (!data.route || !data.route.traavoid || data.route.traavoid.length === 0) {
         console.error(
           "API Error (Navigation): Received code 0 but no routes found."
         );
         throw new Error("경로 정보를 수신하지 못했습니다.");
       }
+
+      // [매핑 로직]
+      const routeSummary = data.route.traavoid[0].summary;
+
+      return {
+        totalDistance: routeSummary.distance,
+        // !! 중요: 네이버는 ms 단위이므로 1000으로 나눠 초(s) 단위로 변환
+        totalDuration: Math.round(routeSummary.duration / 1000), 
+      };
 
     } catch (error) {
       // 에러 핸들링 로직 (마지막 단계에 추가)
