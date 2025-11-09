@@ -18,9 +18,13 @@ class NavigationService {
         NAVER_DIRECTIONS_API_URL,
         {
           params: {
-            // 네이버 파라미터: start, goal (경도,위도 순서)
             start: `${origin.lon},${origin.lat}`,
             goal: `${destination.lon},${destination.lat}`,
+          },
+          headers: {
+            // 네이버 인증 헤더 (2개)
+            "X-NCP-APIGW-API-KEY-ID": process.env.NAVER_CLIENT_ID,
+            "X-NCP-APIGW-API-KEY": process.env.NAVER_CLIENT_SECRET,
           },
         }
       );
