@@ -1,30 +1,8 @@
+// src/feature/WeatherService.ts
+
 import axios from "axios";
-
-// 프론트엔드와 약속한, 우리가 실제로 사용할 날씨 데이터 형식
-export interface WeatherInfo {
-  temp: number; // 현재 기온
-  feels_like: number; // 체감 기온
-  temp_min: number; // 최저 기온
-  temp_max: number; // 최고 기온
-  description: string; // 날씨 설명 (예: "맑음")
-  icon: string; // 날씨 아이콘 ID
-}
-
-// OpenWeatherMap API가 반환하는 원본 데이터 중 일부 (타입스크립트의 이점)
-interface OpenWeatherApiResponse {
-  weather: [
-    {
-      description: string;
-      icon: string;
-    }
-  ];
-  main: {
-    temp: number;
-    feels_like: number;
-    temp_min: number;
-    temp_max: number;
-  };
-}
+// [수정] types 폴더에서 인터페이스 import
+import { WeatherInfo, OpenWeatherApiResponse } from "../types/weather.types";
 
 const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
 
@@ -46,15 +24,25 @@ class WeatherService {
           params: {
             lat: lat,
             lon: lon,
-            appid: process.env.OPENWEATHER_API_KEY, // 환경 변수 사용
-            units: "metric", // 섭씨 온도 사용
-            lang: "kr", // 한국어 설명
+            appid: process.env.OPENWEATHER_API_KEY,
+            units: "metric",
+            lang: "kr",
           },
         }
       );
 
-      // API 원본 데이터를 우리가 사용할 WeatherInfo 형태로 가공
       const { data } = response;
+
+      // [수정] API 응답 데이터 검증 로직 추가
+      if (!data.weather || data.weather.length === 0) {
+        // API는 성공(200)했으나, weather 배열이 비어있는 경우
+        console.error(
+          "API Error (Weather): Received 200 OK but no weather data."
+        );
+        throw new Error("유효한 날씨 정보를 수신하지 못했습니다.");
+      }
+
+      // 검증이 완료되었으므로 안전하게 [0]에 접근
       const weatherData = data.weather[0];
       const mainData = data.main;
 
@@ -67,14 +55,15 @@ class WeatherService {
         icon: weatherData.icon,
       };
     } catch (error) {
-      // ExchangeRateService와 동일한 에러 핸들링 스타일 적용
       if (axios.isAxiosError(error)) {
         console.error(
           `API Error (Weather) : ${error.response?.status}: ${error.message}`
         );
       } else {
+        // (위에서 던진 `new Error` 포함)
         console.error(`Unexpected error (Weather): ${error}`);
       }
+      // 서비스 사용자(컨트롤러 등)에게 일관된 에러 메시지 전달
       throw new Error("날씨 정보를 가져오는 데 실패했습니다.");
     }
   }
