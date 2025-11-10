@@ -1,31 +1,24 @@
 import axios from "axios";
-// 모든 타입은 types 폴더에서 가져옵니다.
 import { WeatherInfo, OpenWeatherApiResponse } from "../types/weather.types";
 
-interface OpenWeatherApiResponse {
-  // ... (이 코드는 types/weather.types.ts에 있어야 합니다)
-}
-
-const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
-
-// [추가] 캐시된 데이터를 저장할 객체 (key: "lat,lon", value: { timestamp, data })
 interface CacheEntry {
   timestamp: number;
   data: WeatherInfo;
 }
 const CACHE_TTL = 10 * 60 * 1000; // 10분
 
+const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
+
 class WeatherService {
-  // [추가] 캐시를 static 속성으로 선언
   private static cache: Map<string, CacheEntry> = new Map();
 
-  /**
-   * (기존 JSDoc)
-   */
   static async getCurrentWeather(
     lat: number,
     lon: number
   ): Promise<WeatherInfo> {
+    // [추가] 캐시 키 생성 (소수점 2자리까지 통일)
+    const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+    const now = Date.now();
     try {
       // (기존 API 호출 로직)
       const response = await axios.get<OpenWeatherApiResponse>(
