@@ -16,9 +16,20 @@ class WeatherService {
     lat: number,
     lon: number
   ): Promise<WeatherInfo> {
-    // [추가] 캐시 키 생성 (소수점 2자리까지 통일)
     const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
     const now = Date.now();
+
+    // [추가] 1. 캐시 확인
+    if (this.cache.has(cacheKey)) {
+      const entry = this.cache.get(cacheKey)!;
+      // 10분이 지나지 않았으면 캐시된 데이터 반환
+      if (now - entry.timestamp < CACHE_TTL) {
+        console.log(`[Cache] HIT: Weather data for ${cacheKey}`);
+        return entry.data;
+      }
+    }
+
+    console.log(`[Cache] MISS: Fetching new weather data for ${cacheKey}`);
     try {
       // (기존 API 호출 로직)
       const response = await axios.get<OpenWeatherApiResponse>(
