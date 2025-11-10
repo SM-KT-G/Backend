@@ -19,10 +19,9 @@ class WeatherService {
     const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
     const now = Date.now();
 
-    // [추가] 1. 캐시 확인
+    // 1. 캐시 확인
     if (this.cache.has(cacheKey)) {
       const entry = this.cache.get(cacheKey)!;
-      // 10분이 지나지 않았으면 캐시된 데이터 반환
       if (now - entry.timestamp < CACHE_TTL) {
         console.log(`[Cache] HIT: Weather data for ${cacheKey}`);
         return entry.data;
@@ -30,35 +29,28 @@ class WeatherService {
     }
 
     console.log(`[Cache] MISS: Fetching new weather data for ${cacheKey}`);
+
     try {
-      // (기존 API 호출 로직)
+      // 2. API 호출
       const response = await axios.get<OpenWeatherApiResponse>(
         OPENWEATHER_API_URL,
         {
-          params: {
-            lat: lat,
-            lon: lon,
-            appid: process.env.OPENWEATHER_API_KEY,
-            units: "metric",
-            lang: "kr",
-          },
+          params: { /* ... */ },
         }
       );
 
-      // (기존 검증 로직)
       const { data } = response;
+
+      // 3. 검증
       if (!data.weather || data.weather.length === 0) {
-        console.error(
-          "API Error (Weather): Received 200 OK but no weather data."
-        );
-        throw new Error("유효한 날씨 정보를 수신하지 못했습니다.");
+        throw new Error("유효한 날씨 정보를 수신하지 못했습니다."); // (간소화)
       }
 
-      // (기존 가공 로직)
       const weatherData = data.weather[0];
       const mainData = data.main;
 
-      return {
+      // 4. 데이터 가공
+      const formattedWeather: WeatherInfo = {
         temp: mainData.temp,
         feels_like: mainData.feels_like,
         temp_min: mainData.temp_min,
@@ -66,6 +58,14 @@ class WeatherService {
         description: weatherData.description,
         icon: weatherData.icon,
       };
+
+      // [추가] 5. 캐시에 저장
+      this.cache.set(cacheKey, {
+        timestamp: now,
+        data: formattedWeather,
+      });
+
+      return formattedWeather;
     } catch (error) {
       // (기존 에러 핸들링)
       if (axios.isAxiosError(error)) {
