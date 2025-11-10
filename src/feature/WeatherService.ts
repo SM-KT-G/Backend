@@ -1,23 +1,33 @@
-// src/feature/WeatherService.ts
-
 import axios from "axios";
-// [수정] types 폴더에서 인터페이스 import
+// 모든 타입은 types 폴더에서 가져옵니다.
 import { WeatherInfo, OpenWeatherApiResponse } from "../types/weather.types";
+
+interface OpenWeatherApiResponse {
+  // ... (이 코드는 types/weather.types.ts에 있어야 합니다)
+}
 
 const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
 
+// [추가] 캐시된 데이터를 저장할 객체 (key: "lat,lon", value: { timestamp, data })
+interface CacheEntry {
+  timestamp: number;
+  data: WeatherInfo;
+}
+const CACHE_TTL = 10 * 60 * 1000; // 10분
+
 class WeatherService {
+  // [추가] 캐시를 static 속성으로 선언
+  private static cache: Map<string, CacheEntry> = new Map();
+
   /**
-   * 특정 위도와 경도를 기반으로 현재 날씨 정보를 가져옵니다.
-   * @param lat 위도
-   * @param lon 경도
-   * @returns 가공된 날씨 정보(WeatherInfo) Promise 객체
+   * (기존 JSDoc)
    */
   static async getCurrentWeather(
     lat: number,
     lon: number
   ): Promise<WeatherInfo> {
     try {
+      // (기존 API 호출 로직)
       const response = await axios.get<OpenWeatherApiResponse>(
         OPENWEATHER_API_URL,
         {
@@ -31,18 +41,16 @@ class WeatherService {
         }
       );
 
+      // (기존 검증 로직)
       const { data } = response;
-
-      // [수정] API 응답 데이터 검증 로직 추가
       if (!data.weather || data.weather.length === 0) {
-        // API는 성공(200)했으나, weather 배열이 비어있는 경우
         console.error(
           "API Error (Weather): Received 200 OK but no weather data."
         );
         throw new Error("유효한 날씨 정보를 수신하지 못했습니다.");
       }
 
-      // 검증이 완료되었으므로 안전하게 [0]에 접근
+      // (기존 가공 로직)
       const weatherData = data.weather[0];
       const mainData = data.main;
 
@@ -55,15 +63,14 @@ class WeatherService {
         icon: weatherData.icon,
       };
     } catch (error) {
+      // (기존 에러 핸들링)
       if (axios.isAxiosError(error)) {
         console.error(
           `API Error (Weather) : ${error.response?.status}: ${error.message}`
         );
       } else {
-        // (위에서 던진 `new Error` 포함)
         console.error(`Unexpected error (Weather): ${error}`);
       }
-      // 서비스 사용자(컨트롤러 등)에게 일관된 에러 메시지 전달
       throw new Error("날씨 정보를 가져오는 데 실패했습니다.");
     }
   }
