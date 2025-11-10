@@ -12,6 +12,14 @@ const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
 class WeatherService {
   private static cache: Map<string, CacheEntry> = new Map();
 
+  /**
+   * 특정 위도와 경도를 기반으로 현재 날씨 정보를 가져옵니다.
+   * (결과는 10분 동안 캐시됩니다.)
+   * @param lat 위도
+   * @param lon 경도
+   * @returns 가공된 날씨 정보(WeatherInfo) Promise 객체
+   */
+
   static async getCurrentWeather(
     lat: number,
     lon: number
