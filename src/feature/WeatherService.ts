@@ -10,12 +10,12 @@ const CACHE_TTL = 10 * 60 * 1000; // 10분
 const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
 
 class WeatherService {
-  private static cache: Map<string, CacheEntry> = new Map();
+  // [변경] private static cache -> private cache (인스턴스 속성)
+  private cache: Map<string, CacheEntry> = new Map();
 
   /**
    * (JSDoc...)
    */
-  // [변경] static 제거
   async getCurrentWeather(
     lat: number,
     lon: number
@@ -23,8 +23,9 @@ class WeatherService {
     const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
     const now = Date.now();
 
-    if (WeatherService.cache.has(cacheKey)) { // [변경] this.cache -> WeatherService.cache (임시)
-      const entry = WeatherService.cache.get(cacheKey)!; // [변경] this.cache -> WeatherService.cache (임시)
+    // [변경] WeatherService.cache -> this.cache (인스턴스 캐시 접근)
+    if (this.cache.has(cacheKey)) {
+      const entry = this.cache.get(cacheKey)!;
       if (now - entry.timestamp < CACHE_TTL) {
         console.log(`[Cache] HIT: Weather data for ${cacheKey}`);
         return entry.data;
@@ -37,22 +38,13 @@ class WeatherService {
       const response = await axios.get<OpenWeatherApiResponse>(
         OPENWEATHER_API_URL,
         {
-          params: {
-            lat: lat,
-            lon: lon,
-            appid: process.env.OPENWEATHER_API_KEY,
-            units: "metric",
-            lang: "kr",
-          },
+          params: { /* ... */ },
         }
       );
 
       const { data } = response;
 
       if (!data.weather || data.weather.length === 0) {
-        console.error(
-          "API Error (Weather): Received 200 OK but no weather data."
-        );
         throw new Error("유효한 날씨 정보를 수신하지 못했습니다.");
       }
 
@@ -68,20 +60,15 @@ class WeatherService {
         icon: weatherData.icon,
       };
 
-      WeatherService.cache.set(cacheKey, { // [변경] this.cache -> WeatherService.cache (임시)
+      // [변경] WeatherService.cache -> this.cache (인스턴스 캐시 저장)
+      this.cache.set(cacheKey, {
         timestamp: now,
         data: formattedWeather,
       });
 
       return formattedWeather;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error(
-          `API Error (Weather) : ${error.response?.status}: ${error.message}`
-        );
-      } else {
-        console.error(`Unexpected error (Weather): ${error}`);
-      }
+      if (axios.isAxiosError(error)) { /* ... */ } else { /* ... */ }
       throw new Error("날씨 정보를 가져오는 데 실패했습니다.");
     }
   }
