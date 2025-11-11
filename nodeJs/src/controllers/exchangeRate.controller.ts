@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import ExchangeRateService from "../services/exchangeRate.service";
+import { ApiError, NotFoundError } from "../errors/custom.error";
 
 class ExchangeRateController {
   /**
@@ -9,18 +10,26 @@ class ExchangeRateController {
    */
   static getExchangeRates = async (req: Request, res: Response) => {
     try {
-      const rates = await ExchangeRateService.getAllExchangeRates();
-      if (!rates || rates.length === 0) {
-        res.status(404).json({
-          error: "환율 정보가 없습니다.",
-          message: "조회된 환율 정보가 없습니다.",
-        });
-        return;
-      }
-      res.status(200).json(rates);
+      const { date } = req.query;
+      const rates = await ExchangeRateService.getAllExchangeRates(date as string);
+
+      res.status(200).json({
+        data: rates
+      });
     } catch (error) {
-      res.status(500).json({ error: "환율 정보를 가져오는 데 실패했습니다." });
-      return;
+      if (error instanceof ApiError) {
+        console.error(`[${error.name}] ${error.message}`);
+        res.status(error.statusCode).json({
+          status: error.status,
+          message: "외부 환율 API 호출에 실패했습니다.",
+        });
+      } else {
+        console.error(`[Unexpected Error]`, error);
+        res.status(500).json({
+          status: "error",
+          message: "환율 정보를 가져오는 데 실패했습니다.",
+        });
+      }
     }
   };
   /**
@@ -31,18 +40,32 @@ class ExchangeRateController {
    */
   static getJPYExchangeRate = async (req: Request, res: Response) => {
     try {
-      const jpyRate = await ExchangeRateService.getJPYExchangeRate();
-      if (!jpyRate) {
-        res.status(404).json({
-          error: "환율 정보가 없습니다.",
-          message: "조회된 JPY 환율 정보가 없습니다.",
-        });
-        return;
-      }
-      res.status(200).json(jpyRate);
+      const { date } = req.query;
+      const jpyRate = await ExchangeRateService.getJPYExchangeRate(date as string);
+
+      res.status(200).json({
+        data: jpyRate,
+      });
     } catch (error) {
-      res.status(500).json({ error: "환율 정보를 가져오는 데 실패했습니다." });
-      return;
+      if (error instanceof NotFoundError) {
+        console.error(`[${error.name}] ${error.message}`);
+        res.status(error.statusCode).json({
+          status: error.status,
+          message: error.message,
+        });
+      } else if (error instanceof ApiError) {
+        console.error(`[${error.name}] ${error.message}`);
+        res.status(error.statusCode).json({
+          status: error.status,
+          message: "외부 환율 API 호출에 실패했습니다.",
+        });
+      } else {
+        console.error(`[Unexpected Error]`, error);
+        res.status(500).json({
+          status: "error",
+          message: "JPY 환율 정보를 가져오는 데 실패했습니다.",
+        });
+      }
     }
   };
 }
