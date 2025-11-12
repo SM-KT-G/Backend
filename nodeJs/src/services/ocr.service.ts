@@ -57,7 +57,6 @@ class OcrService {
             extractedText += ' ';
           }
         }
-
         return extractedText.trim();
       }
 
