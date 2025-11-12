@@ -1,8 +1,8 @@
-import { TranslationRequest, TranslationResponse } from "../types/translation";
+import { TranslationRequestData, TranslationResponse } from "../types/translation";
 
 class TranslationService {
   static async translateJapaneseToKorean(
-    request: TranslationRequest
+    request: TranslationRequestData
   ): Promise<TranslationResponse> {
     const { text, sourceLang = "ja", targetLang = "ko" } = request;
 
@@ -33,6 +33,7 @@ class TranslationService {
     };
     return dictionary[text] || text;
   }
+
 }
 
 export default TranslationService;
