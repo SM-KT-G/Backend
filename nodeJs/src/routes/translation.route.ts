@@ -1,25 +1,52 @@
 import { Router } from 'express';
+import multer from 'multer';
 import TranslationController from '../controllers/translation.controller';
 
 const router = Router();
 
+// Multer 설정: 메모리 스토리지 사용 (buffer로 저장)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB 제한
+  },
+  fileFilter: (_req, file, cb) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/tiff', 'application/pdf'];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('지원하지 않는 파일 형식입니다. (jpg, jpeg, png, tiff, pdf만 가능)'));
+    }
+  },
+});
+
 /**
  * POST /api/translation/translate
- * 일본어 문장을 한국어로 번역
+ * 텍스트 또는 이미지를 번역
  *
- * Request body:
+ * Request (텍스트):
+ * Content-Type: application/json
  * {
- *   "text": "こんにちは、私は猫が好きです"
+ *   "text": "불고기",
+ *   "sourceLang": "ko",
+ *   "targetLang": "ja"
  * }
+ *
+ * Request (이미지):
+ * Content-Type: multipart/form-data
+ * - file: 이미지 파일 (jpg, jpeg, png, tiff, pdf)
+ * - sourceLang: "ko" (optional)
+ * - targetLang: "ja" (optional)
  *
  * Response:
  * {
- *   "originalText": "こんにちは、私は猫が好きです",
- *   "translatedText": "안녕하세요、나는고양이が好きです",
- *   "sourceLang": "ja",
- *   "targetLang": "ko"
+ *   "translatedText": "プルコギ",
+ *   "sourceLang": "ko",
+ *   "targetLang": "ja"
  * }
  */
-router.post('/translate', TranslationController.translateText);
+router.post('/translate', upload.single('file'), TranslationController.translate);
 
 export default router;
+
+
