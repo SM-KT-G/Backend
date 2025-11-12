@@ -32,7 +32,6 @@ class TranslationController {
       };
 
       const result: TranslationResponse = await translationService.translateJapaneseToKorean(requestData);
-      console.log('Translation Result:', JSON.stringify(result));
       res.json(result);
     } catch (error) {
       const errorResponse: TranslationError = {
