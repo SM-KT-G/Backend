@@ -1,24 +1,8 @@
 import { Router } from 'express';
-import multer from 'multer';
 import TranslationController from '../controllers/translation.controller';
+import upload from '../middlewares/upload.middleware';
 
 const router = Router();
-
-// Multer 설정: 메모리 스토리지 사용 (buffer로 저장)
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB 제한
-  },
-  fileFilter: (_req, file, cb) => {
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/tiff', 'application/pdf'];
-    if (allowedMimeTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('지원하지 않는 파일 형식입니다. (jpg, jpeg, png, tiff, pdf만 가능)'));
-    }
-  },
-});
 
 /**
  * POST /api/translation/translate
@@ -48,5 +32,4 @@ const upload = multer({
 router.post('/translate', upload.single('file'), TranslationController.translate);
 
 export default router;
-
-
+{}
