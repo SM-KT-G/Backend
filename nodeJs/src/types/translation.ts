@@ -1,5 +1,12 @@
-export interface TranslationRequest {
-  text: string;
+export interface TranslationRequestBody {
+  text?: string;
+  sourceLang?: string;
+  targetLang?: string;
+}
+
+export interface TranslationRequestData {
+  text?: string;
+  image?: Express.Multer.File;
   sourceLang?: string;
   targetLang?: string;
 }
