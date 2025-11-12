@@ -1,25 +1,37 @@
 import { Request, Response } from 'express';
 import translationService from '../services/translation.service';
-import { TranslationRequest, TranslationError, TranslationResponse } from '../types/translation';
+import ocrService from '../services/ocr.service';
+import { TranslationRequestBody, TranslationRequestData, TranslationError, TranslationResponse } from '../types/translation';
 
 class TranslationController {
-  static async translateText(req: Request, res: Response): Promise<void> {
+  static async translate(req: Request, res: Response): Promise<void> {
     try {
-      const { text, sourceLang, targetLang }: TranslationRequest = req.body;
+      const { text, sourceLang, targetLang }: TranslationRequestBody = req.body;
+      const image = req.file;
 
-      if (!text) {
+      if (!text && !image) {
         const errorResponse: TranslationError = {
           error: 'INVALID_REQUEST',
-          message: '번역할 텍스트를 입력해주세요.',
+          message: '텍스트 또는 이미지를 입력해주세요.',
         };
         res.status(400).json(errorResponse);
         return;
       }
-      const result: TranslationResponse = await translationService.translateJapaneseToKorean({
-        text,
+
+      let textToTranslate = text;
+
+      // 이미지가 있으면 OCR로 텍스트 추출
+      if (image) {
+        textToTranslate = await ocrService.extractTextFromImage(image);
+      }
+
+      const requestData: TranslationRequestData = {
+        text: textToTranslate,
         sourceLang,
         targetLang,
-      });
+      };
+
+      const result: TranslationResponse = await translationService.translateJapaneseToKorean(requestData);
       res.json(result);
     } catch (error) {
       const errorResponse: TranslationError = {
