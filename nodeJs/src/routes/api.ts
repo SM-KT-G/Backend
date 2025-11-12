@@ -20,4 +20,8 @@ router.post('/users', (req: Request, res: Response) => {
   });
 });
 
+router.get('/status', (requ:Request, res:Response) => {
+  res.json({ status: 'OK' });
+})
+
 export default router;
