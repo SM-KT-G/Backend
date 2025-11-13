@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import apiRoutes from './routes/api';
 import authRoutes from './routes/auth.router';
 
