@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import apiRoutes from './routes/api';
-import chatRoutes from './routes/chatRoutes';
-import { connectMongoDB } from './config/mongodb';
+import authRoutes from './routes/auth.router';
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,13 +15,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', apiRoutes);
-app.use('/api/chat', chatRoutes);
+app.use('/api/auth', authRoutes);
 
-// Connect to MongoDB and start server
 const startServer = async () => {
   try {
-    await connectMongoDB();
-
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on http://localhost:${PORT}`);
     });
