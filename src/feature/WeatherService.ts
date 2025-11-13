@@ -59,7 +59,7 @@ class WeatherService {
       return formattedWeather;
     } catch (error) {
       // 헬퍼 메소드에서 이미 구체적인 에러를 로깅함
-      // 여기서는 사용자에게 전달할 최종 에러를 던짐
+      // 여기서는 사용자에게 전달할 최종 에러를 전달
       throw new Error("날씨 정보를 가져오는 데 실패했습니다.");
     }
   }
