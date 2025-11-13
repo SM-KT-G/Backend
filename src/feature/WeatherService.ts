@@ -12,7 +12,8 @@ interface CacheEntry {
 // 캐시 유효 시간: 10분
 const CACHE_TTL = 10 * 60 * 1000;
 
-const OPENWEATHER_API_URL = 
+// OpenWeatherMap API 기본 URL
+const OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
 
 class WeatherService {
   /**
