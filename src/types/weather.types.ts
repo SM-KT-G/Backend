@@ -21,7 +21,7 @@ export interface OpenWeatherApiResponse {
  */
 export interface WeatherInfo {
   temp: number;
-  feels_like: number;
+  feels_bads: number;
   temp_min: number;
   temp_max: number;
   description: string;
