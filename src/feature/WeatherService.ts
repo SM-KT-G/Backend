@@ -29,7 +29,6 @@ class WeatherService {
    * @returns 가공된 날씨 정보(WeatherInfo) Promise 객체
    */
 
-  // 1. 캐시 키 생성 (소수점 2자리까지 통일)
   async getCurrentWeather(
     lat: number,
     lon: number
