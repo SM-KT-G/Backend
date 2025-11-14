@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { dbpool } from "../config/db";
+import { dbpool } from "../config/index";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
