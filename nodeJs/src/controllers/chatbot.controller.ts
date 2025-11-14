@@ -1,19 +1,32 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import chatService from '../services/chat.service';
+import chatService from '../services/chatbot.service';
 
 class ChatBotController {
-    // 채팅을 보낸다
     static async sendChat(req: Request, res: Response) {
         try {
-            const userUuid = req.params.userUuid;
+            const user = req.user as { uuid: string };
+            if (!user || !user.uuid) {
+                return res.status(401).json({
+                    error: "Not authorized"
+                });
+            }
             const { message } = req.body;
-            // TODO: accessToken 해독하여 userUuid 추출
-            // TODO: userUuid로 User의 pk 조회
-            // TODO: 채팅 메시지 DB 저장
+            if (!message) {
+                return res.status(400).json({
+                    error: "Message is required"
+                });
+            }
+            const chatResponse = await chatService.sendChat(user.uuid, message);
+            return res.status(200).json({
+                reply: chatResponse,
+            });
         }
         catch (error) {
-
+            console.error("Send chat error:", error);
+            return res.status(500).json({
+                error: "Internal server error"
+            });
         }
     }
 
@@ -41,4 +54,4 @@ class ChatBotController {
     }
 }
 
-export default ChatBotController
+export default ChatBotController;
