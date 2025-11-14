@@ -1,2 +1,2 @@
 export { dbpool } from "./mariadb";
-export { default as mongoose } from "./mongodb";
+// export { default as mongoose } from "./mongodb";
