@@ -45,7 +45,7 @@ class chatBotModel {
       connection.release();
     }
   }
-
+  
   // 대화 기록 조회 (최근 20개) 혹시 몰라서 만들어놨습니다
   static async getChatHistory(sessionId: number, limit: number = 20) {
     const connection = await dbpool.getConnection();
@@ -58,6 +58,62 @@ class chatBotModel {
         [sessionId, limit]
       );
       return rows.reverse(); // 오래된 순서로 반환
+    } finally {
+      connection.release();
+    }
+  }
+
+  // UUID로 특정 채팅 세션 조회
+  static async getChatByUuid(chatUuid: string) {
+    const connection = await dbpool.getConnection();
+    try {
+      const session = await connection.query(
+        `SELECT * FROM CHAT_SESSIONS WHERE uuid = ?`,
+        [chatUuid]
+      );
+      if (!session || session.length === 0) {
+        return null;
+      }
+
+      const messages = await connection.query(
+        `SELECT * FROM CHAT_MESSAGES
+         WHERE session_id = ?
+         ORDER BY created_at ASC`,
+        [session[0].id]
+      );
+
+      return {
+        session: session[0],
+        messages: messages
+      };
+    } finally {
+      connection.release();
+    }
+  }
+
+  // 사용자 ID로 세션과 모든 메시지 조회
+  static async getChatsByUserId(userId: number) {
+    const connection = await dbpool.getConnection();
+    try {
+      const session = await connection.query(
+        `SELECT * FROM CHAT_SESSIONS WHERE user_id = ?`,
+        [userId]
+      );
+      if (!session || session.length === 0) {
+        return null;
+      }
+
+      const messages = await connection.query(
+        `SELECT * FROM CHAT_MESSAGES
+         WHERE session_id = ?
+         ORDER BY created_at ASC`,
+        [session[0].id]
+      );
+
+      return {
+        session: session[0],
+        messages: messages
+      };
     } finally {
       connection.release();
     }
