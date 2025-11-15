@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import weatherRouter from './WeatherRouter';
 import navigationRouter from './NavigationRouter';
 
 const mainRouter = Router();
