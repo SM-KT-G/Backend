@@ -20,7 +20,7 @@ const navigationRouter = Router();
  * $ref: '#/components/schemas/Coordinates'
  * destination:
  * $ref: '#/components/schemas/Coordinates'
- * example:   # <-- [수정됨] 이 블록의 들여쓰기가 schema와 같은 레벨
+ * example:
  * origin: { "lat": 37.5665, "lon": 126.9780 }
  * destination: { "lat": 37.5124, "lon": 127.1054 }
  * responses:
