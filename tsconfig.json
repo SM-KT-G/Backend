@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",         /* 컴파일할 JavaScript 버전 */
+    "module": "CommonJS",      /* [가장 중요] 모듈 시스템을 CommonJS로 설정 */
+    "moduleResolution": "node",  /* 모듈 해석 방식 */
+    "esModuleInterop": true,     /* import/require 호환 */
+    "strict": true,              /* 엄격한 타입 체크 */
+    "skipLibCheck": true,        /* 라이브러리 타입 체크 스킵 */
+    "outDir": "./dist",          /* (빌드 시) 컴파일된 JS 파일이 저장될 폴더 */
+    "rootDir": "./src"           /* TS 소스 코드의 루트 폴더 */
+  },
+  "include": ["src/**/*"] /* TypeScript 컴파일 대상 폴더 */
+}
