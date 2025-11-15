@@ -5,7 +5,7 @@ class UsersModel {
         const connection = await dbpool.getConnection();
         try {
             const rows = await connection.query(
-                `SELECT id FROM users WHERE uuid = ?`,
+                `SELECT id FROM USERS WHERE uuid = ?`,
                 [userUuid]
             );
             if (rows.length > 0) {
