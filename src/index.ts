@@ -1,6 +1,6 @@
 import express from 'express';
 import 'dotenv/config'; // .env 파일 로드 (가장 상단에)
-import mainRouter from './routes'; // ./routes/index.ts 를 가져옴
+import mainRouter from './routes/index.js'; // ./routes/index.ts 를 가져옴
 
 // Swagger 모듈 import (API Docs용)
 import swaggerUi from 'swagger-ui-express';
