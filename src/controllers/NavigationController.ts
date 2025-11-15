@@ -21,12 +21,14 @@ class NavigationController {
       // 2. 서비스 호출
       const directionsData = await navigationService.getDirections(origin, destination);
 
-      // 3. 성공 응답
-      return res.status(200).json(directionsData);
+      // 3. 성공 응답 [수정됨]
+      // { "data": ... } 형태로 감싸서 반환
+      return res.status(200).json({ data: directionsData });
 
     } catch (error) {
       // 4. 서비스에서 발생한 에러 처리
       const errorMessage = (error instanceof Error) ? error.message : 'Unknown error';
+      // [수정됨] 에러 응답도 { error: ... } 형태로 통일
       return res.status(500).json({ error: errorMessage });
     }
   }
