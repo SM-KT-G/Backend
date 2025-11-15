@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import navigationRouter from './NavigationRouter.js';
+import navigationRouter from './NavigationRouter';
 
 const mainRouter = Router();
 
