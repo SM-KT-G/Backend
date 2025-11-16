@@ -30,17 +30,47 @@ const swaggerOptions = {
     // API 명세에 공용 스키마(타입) 추가
     components: {
       schemas: {
-        // 1. Weather (KMA '초단기실황' 기준)
-        WeatherInfo: {
+        // [Navigation 스키마 (Coordinates, RouteInfo) 제외됨]
+        
+        // 1. Weather (통합)
+        CombinedWeatherInfo: {
+          type: 'object',
+          properties: {
+            weather: { $ref: '#/components/schemas/WeatherInfoComponent' },
+            advisory: { $ref: '#/components/schemas/AdvisoryInfo' },
+            airQuality: { $ref: '#/components/schemas/AirQualityInfo' }
+          },
+          description: "현재 날씨 + 특보 + 미세먼지 통합 정보"
+        },
+        WeatherInfoComponent: {
            type: 'object',
            properties: {
              temp: { type: 'number' },
              sky: { type: 'string' },
              rainType: { type: 'string' },
              rainAmount: { type: 'string' }
-           }
+           },
+           description: "초단기실황 (현재 날씨)"
         },
-        // 2. Forecast (KMA '단기예보')
+        AdvisoryInfo: {
+          type: 'object',
+          properties: {
+            warning: { type: 'boolean' },
+            details: { type: 'string', example: "강풍주의보 발효 중" }
+          },
+          description: "기상특보 정보"
+        },
+        AirQualityInfo: {
+          type: 'object',
+          properties: {
+            pm10: { type: 'number', example: 35 },
+            pm25: { type: 'number', example: 20 },
+            dataTime: { type: 'string', example: '2025-11-16 13:00' }
+          },
+          description: "대기질(미세먼지) 정보"
+        },
+
+        // 2. Forecast (단기)
         HourlyForecast: {
           type: 'object',
           properties: {
@@ -52,7 +82,7 @@ const swaggerOptions = {
             rainProbability: { type: 'number', example: 0 }
           }
         },
-        // 3. Forecast (KMA '중기예보')
+        // 3. Forecast (중기)
         DailyForecast: {
           type: 'object',
           properties: {
