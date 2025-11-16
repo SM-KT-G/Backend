@@ -106,12 +106,16 @@ class ForecastService {
   // =================================================================
 
   /**
-   * (regId) 지역 ID 기반으로 10일치 중기예보를 가져옵니다.
-   * [주의] 중기예보는 (X, Y)가 아닌 'regId' (지역 ID)를 사용합니다.
-   * (lat, lon -> regId 변환은 이 서비스의 다음 단계에서 구현합니다.)
+   * [수정됨] (lat, lon) 좌표 기반으로 10일치 중기예보를 가져옵니다.
    */
-  async getMidTermForecast(regId: string): Promise<DailyForecast[]> {
-    const cacheKey = regId;
+  async getMidTermForecast(lat: number, lon: number): Promise<DailyForecast[]> {
+    
+    // [수정] GeoConverter를 사용해 lat, lon -> regId 변환
+    const regionCodes = await GeoConverter.getRegionCodes(lat, lon);
+    const landRegId = regionCodes.regId; // 육상예보 ID
+    const tempRegId = regionCodes.tempRegId; // 기온예보 ID
+
+    const cacheKey = landRegId; // 캐시 키는 regId를 사용
     const now = Date.now();
 
     // 캐시 확인 (3시간)
@@ -136,7 +140,7 @@ class ForecastService {
           params: {
             serviceKey: KMA_SERVICE_KEY,
             dataType: 'JSON',
-            regId: regId, // "11B00000" (X, Y가 아님)
+            regId: landRegId, // [수정] 변환된 육상 ID 사용
             tmFc: base_time, // "202511160600"
           },
         }
@@ -149,7 +153,7 @@ class ForecastService {
           params: {
             serviceKey: KMA_SERVICE_KEY,
             dataType: 'JSON',
-            regId: regId.startsWith('11') ? regId.slice(0, 8) + '101' : regId, // 기온 ID는 다소 다를 수 있음 (예: 11B10101)
+            regId: tempRegId, // [수정] 변환된 기온 ID 사용
             tmFc: base_time,
           },
         }
@@ -187,8 +191,6 @@ class ForecastService {
 
   /**
    * (Private) 단기예보 발표 시각(base_time) 계산
-   * 단기예보는 02시, 05시, 08시, 11시, 14시, 17시, 20시, 23시에 발표됨 (하루 8번)
-   * 현재 시각에서 가장 가까운 *과거* 발표 시각을 찾아야 함
    */
   private getKmaShortTermBaseTime(): { base_date: string; base_time: string } {
     const now = new Date();
@@ -226,7 +228,6 @@ class ForecastService {
 
   /**
    * (Private) 중기예보 발표 시각(tmFc) 계산
-   * 중기예보는 06시, 18시에 발표됨 (하루 2번)
    */
   private getKmaMidTermBaseTime(): { base_time: string } {
     const now = new Date();
@@ -324,7 +325,7 @@ const KMA_PTY_CODE: { [key: string]: string } = {
   '1': '비',
   '2': '비/눈',
   '3': '눈',
-  '4B': '소나기',
+  '4B': '소나기', // '4'가 아니라 '4B'일 수 있습니다. API 문서를 확인하세요. (우선 '4'로 가정)
   '5': '빗방울',
   '6': '빗방울/눈날림',
   '7': '눈날림',
