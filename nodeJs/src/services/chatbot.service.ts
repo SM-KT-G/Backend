@@ -25,12 +25,30 @@ class ChatBotService {
     }
 
     // 3. FastAPI 호출
-    const response = await axios.post<FastAPIResponse>(
-      `${FASTAPI_BASE_URL}/chat`,
-      { text: message }
-    );
-
-    const fastApiResponse = response.data;
+    let fastApiResponse: FastAPIResponse;
+    try {
+      const response = await axios.post<FastAPIResponse>(
+        `${FASTAPI_BASE_URL}/chat`,
+        { text: message }
+      );
+      fastApiResponse = response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          console.error(
+            "FastAPI error response:",
+            error.response.status,
+            error.response.data
+          );
+          throw new Error(`FastAPI returned error: ${error.response.status}`);
+        } else if (error.request) {
+          console.error("FastAPI no response:", error.message);
+          throw new Error("FastAPI server is not responding");
+        }
+      }
+      console.error("Unexpected error calling FastAPI:", error);
+      throw new Error("Failed to process chat message");
+    }
 
     // 4. DB에 저장 (JSON 형태로)
     await chatBotModel.saveMessageToSession(
@@ -45,10 +63,9 @@ class ChatBotService {
       JSON.stringify(fastApiResponse),
       null
     );
-
-    // 5. 응답 반환
     return fastApiResponse;
   }
+
   static async getChatByUuid(chatUuid: string): Promise<any> {
     const chatRecord = await chatBotModel.getChatByUuid(chatUuid);
     if (!chatRecord) {
@@ -65,7 +82,6 @@ class ChatBotService {
       }
       return msg;
     });
-
     return chatRecord;
   }
 
@@ -75,24 +91,19 @@ class ChatBotService {
     if (!userId) {
       throw new Error("User not found");
     }
-
     // 2. 사용자의 세션 및 메시지 조회
     const chatData = await chatBotModel.getChatsByUserId(userId);
     if (!chatData) {
       return null;
     }
-
-    // JSON 파싱
     chatData.messages = chatData.messages.map((msg: any) => {
       try {
         msg.parsed_content = JSON.parse(msg.content);
       } catch (error) {
-        // 파싱 실패 시 원본 유지
         msg.parsed_content = { message: msg.content };
       }
       return msg;
     });
-
     return chatData;
   }
 }
