@@ -1,9 +1,22 @@
 import chatBotModel from '../models/chatbot.model';
 import usersModel from '../models/users.model';
-import OpenAI from 'openai';
+import axios from 'axios';
+
+interface FastAPIResponse {
+    response_type: 'chat' | 'search';
+    message: string;
+    places?: Array<{
+        place_name: string;
+        domain: string;
+        area: string;
+        description: string;
+        source_id: string;
+    }>;
+}
+const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL;
 
 class ChatBotService {
-    static async sendChat(userUuid: string, message: string): Promise<string> {
+    static async sendChat(userUuid: string, message: string): Promise<FastAPIResponse> {
         // 1. 사용자 확인
         const userId = await usersModel.getUserIdByUuid(userUuid);
         if (!userId) {
@@ -19,55 +32,48 @@ class ChatBotService {
             sessionId = session.id;
         }
 
-        // 3. 기존 대화 기록 조회
-        const history = await chatBotModel.getChatHistory(sessionId, 20);
+        // 3. FastAPI 호출
+        const response = await axios.post<FastAPIResponse>(
+            `${FASTAPI_BASE_URL}/chat`,
+            { text: message }
+        );
 
-        // 4. OpenAI 메시지 형식으로 변환
-        const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-            {
-                role: 'system',
-                content: 'あなたは日本人観光客のための韓国旅行アシスタントです。親切で正確な情報を日本語で提供してください。'
-            },
-            ...history.map((msg: any) => ({
-                role: msg.role === 'bot' ? 'assistant' as const : 'user' as const,
-                content: msg.content
-            })),
-            {
-                role: 'user',
-                content: message
-            }
-        ];
+        const fastApiResponse = response.data;
 
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: messages,
-            temperature: 0.7,
-            max_tokens: 1000
-        });
-        const botResponse = completion.choices[0]?.message?.content;
-
-        if (!botResponse) {
-            throw new Error('No response from GPT');
-        }
-
-        // 6. 마지막 봇 메시지의 completion_id 찾기
-        const lastBotMessage = history.reverse().find((msg: any) => msg.role === 'bot');
-        const previousCompletionId = lastBotMessage?.openai_completion_id || null;
-
-        // 7. GPT 성공 후 DB에 저장
-        await chatBotModel.saveMessageToSession(sessionId, 'user', message, previousCompletionId);
+        // 4. DB에 저장 (JSON 형태로)
+        await chatBotModel.saveMessageToSession(
+            sessionId,
+            'user',
+            JSON.stringify({ message: message }),
+            null
+        );
         await chatBotModel.saveMessageToSession(
             sessionId,
             'bot',
-            botResponse,
-            completion.id
+            JSON.stringify(fastApiResponse),
+            null
         );
-        // 8. 응답 반환
-        return botResponse;
+
+        // 5. 응답 반환
+        return fastApiResponse;
     }
     static async getChatByUuid(chatUuid: string): Promise<any> {
         const chatRecord = await chatBotModel.getChatByUuid(chatUuid);
+        if (!chatRecord) {
+            return null;
+        }
+
+        // JSON 파싱
+        chatRecord.messages = chatRecord.messages.map((msg: any) => {
+            try {
+                msg.parsed_content = JSON.parse(msg.content);
+            } catch (error) {
+                // 파싱 실패 시 원본 유지
+                msg.parsed_content = { message: msg.content };
+            }
+            return msg;
+        });
+
         return chatRecord;
     }
 
@@ -80,6 +86,21 @@ class ChatBotService {
 
         // 2. 사용자의 세션 및 메시지 조회
         const chatData = await chatBotModel.getChatsByUserId(userId);
+        if (!chatData) {
+            return null;
+        }
+
+        // JSON 파싱
+        chatData.messages = chatData.messages.map((msg: any) => {
+            try {
+                msg.parsed_content = JSON.parse(msg.content);
+            } catch (error) {
+                // 파싱 실패 시 원본 유지
+                msg.parsed_content = { message: msg.content };
+            }
+            return msg;
+        });
+
         return chatData;
     }
 }
