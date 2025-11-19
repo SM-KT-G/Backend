@@ -17,9 +17,8 @@ class ChatBotController {
                 });
             }
             const chatResponse = await chatService.sendChat(user.uuid, message);
-            return res.status(200).json({
-                reply: chatResponse,
-            });
+            // FastAPI 응답 그대로 반환 { response_type, message, places? }
+            return res.status(200).json(chatResponse);
         }
         catch (error) {
             console.error("Send chat error:", error);
