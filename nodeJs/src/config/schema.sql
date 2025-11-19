@@ -34,14 +34,13 @@ CREATE TABLE IF NOT EXISTS CHAT_MESSAGES (
   session_id INT NOT NULL COMMENT '소속 채팅 세션 (CHAT_SESSIONS 테이블 참조)',
   openai_completion_id VARCHAR(255) COMMENT 'OpenAI API Completion ID (chatcmpl-xxx)',
   role ENUM('user', 'bot') NOT NULL COMMENT '메시지 역할 (user: 사용자, bot: 챗봇)',
-  content TEXT NOT NULL COMMENT '메시지 내용',
+  content LONGTEXT NOT NULL COMMENT '메시지 내용',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '메시지 생성 시각',
 
   -- 외래키는 CHAT_SESSIONS의 pk를 참조하고 있습니다
   FOREIGN KEY (session_id) REFERENCES CHAT_SESSIONS(id) ON DELETE CASCADE,
 
   -- 인덱스 추가
-  INDEX idx_uuid (uuid),
   INDEX idx_session_id (session_id),
   INDEX idx_openai_completion_id (openai_completion_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='채팅 메시지 테이블';
