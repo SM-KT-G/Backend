@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ExchangeRate } from "../type/exchangeRate";
+import { ExchangeRate } from "../types/exchangeRate.type";
 import { ApiError, NotFoundError } from "../errors/custom.error";
 
 type ApiResponse = ExchangeRate[];
@@ -10,9 +10,9 @@ const API_URL: string =
  * 통화 코드 상수
  * API에서 JPY는 100단위로 제공
  */
-const CURRENCY_CODES = {
-  JPY: "JPY(100)",
-} as const;
+// const CURRENCY_CODES = {
+//   JPY: "JPY(100)",
+// } as const;
 
 class ExchangeRateService {
   /**
@@ -25,7 +25,7 @@ class ExchangeRateService {
       const response = await axios.get<ApiResponse>(API_URL, {
         params: {
           authkey: process.env.EXCHANGE_RATE_API_KEY,
-          searchdate: searchDate, // 빈 문자열일 경우 API가 최근 영업일 기준으로 반환
+          searchdate: 20251120, // 빈 문자열일 경우 API가 최근 영업일 기준으로 반환
           data: "AP01", // 검색요청API타입(AP01 : 환율)
         },
       });
@@ -44,17 +44,23 @@ class ExchangeRateService {
   /**
    * 전체 환율 데이터에서 일본 엔을 가져오는 메소드입니다.
    * @param searchDate - 검색할 날짜 (YYYYMMDD 형식), 미입력 시 최근 영업일 기준
-   * @returns 일본 엔에 대한 환율 객체를 반환합니다.
+   * @returns KRW와 JPY 환율 객체 배열을 반환합니다.
    */
-  static async getJPYExchangeRate(searchDate: string = ""): Promise<ExchangeRate> {
+  static async getJPYExchangeRate(searchDate: string = ""): Promise<ExchangeRate[]> {
     const exchangeRates = await this.getAllExchangeRates(searchDate);
     const jpyRate = exchangeRates.find(
-      (rate) => rate.cur_unit === CURRENCY_CODES.JPY
+      (rate) => rate.cur_unit === "JPY(100)"
     );
     if (!jpyRate) {
       throw new NotFoundError("JPY 환율 정보를 찾을 수 없습니다.");
     }
-    return jpyRate;
+    const krwRate = exchangeRates.find(
+      (rate) => rate.cur_unit === "KRW"
+    );
+    if (!krwRate) {
+      throw new NotFoundError("KRW 환율 정보를 찾을 수 없습니다.");
+    }
+    return [krwRate, jpyRate];
   }
 }
 
