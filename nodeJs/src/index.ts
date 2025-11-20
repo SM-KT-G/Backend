@@ -1,10 +1,7 @@
 import 'dotenv/config';
-import express from 'express';
-import apiRoutes from './routes/api';
 import exchangeRateRouter from './routes/exchangeRate.route';
 import express from 'express';
 import dotenv from 'dotenv';
-import apiRoutes from './routes/api';
 import translationRoutes from './routes/translation.route';
 import apiRoutes from './routes/api';
 import authRoutes from './routes/auth.router';
