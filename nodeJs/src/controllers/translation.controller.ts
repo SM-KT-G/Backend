@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import translationService from '../services/translation.service';
 import ocrService from '../services/ocr.service';
-import { TranslationRequestBody, TranslationRequestData, TranslationError, TranslationResponse } from '../types/translation';
+import { TranslationRequestBody, TranslationRequestData, TranslationError, TranslationResponse } from '../types/translation.type';
 
 class TranslationController {
   static async translate(req: Request, res: Response): Promise<void> {
