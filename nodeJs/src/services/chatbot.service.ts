@@ -55,13 +55,13 @@ class ChatBotService {
       sessionId,
       "user",
       JSON.stringify({ message: message }),
-      null
+      // null
     );
     await chatBotModel.saveMessageToSession(
       sessionId,
       "bot",
       JSON.stringify(fastApiResponse),
-      null
+      // null
     );
     return fastApiResponse;
   }
