@@ -2,6 +2,9 @@ import express from 'express';
 import dotenv from 'dotenv';
 import apiRoutes from './routes/api';
 import translationRoutes from './routes/translation.route';
+import apiRoutes from './routes/api';
+import authRoutes from './routes/auth.router';
+import chatbotRoutes from './routes/chatbot.router';
 
 // 환경변수 로드
 dotenv.config();
@@ -17,10 +20,20 @@ app.get('/', (_req, res) => {
   res.json({ message: 'Hello from Express + TypeScript!' });
 });
 
-app.use('/api', apiRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/translation', translationRoutes);
+app.use('/api', apiRoutes);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
