@@ -1,7 +1,13 @@
 import express from 'express';
+import dotenv from 'dotenv';
+import apiRoutes from './routes/api';
+import translationRoutes from './routes/translation.route';
 import apiRoutes from './routes/api';
 import authRoutes from './routes/auth.router';
 import chatbotRoutes from './routes/chatbot.router';
+
+// 환경변수 로드
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,12 +16,13 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Routes
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({ message: 'Hello from Express + TypeScript!' });
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/translation', translationRoutes);
 app.use('/api', apiRoutes);
 
 const startServer = async () => {
