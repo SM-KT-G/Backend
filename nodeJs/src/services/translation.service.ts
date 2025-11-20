@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { TranslationRequestData, TranslationResponse } from "../types/translation";
+import { TranslationRequestData, TranslationResponse } from "../types/translation.type";
 
 class TranslationService {
   static async translateJapaneseToKorean(
