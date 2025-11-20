@@ -3,5 +3,5 @@ import exchangeRateController from '../controllers/exchangeRate.controller';
 const exchangeRateRouter = express.Router();
 
 exchangeRateRouter.get('/', exchangeRateController.getExchangeRates);
-exchangeRateRouter.get('/jpy', exchangeRateController.getJPYExchangeRate);
+exchangeRateRouter.get('/jpyAndKrw', exchangeRateController.getJPYExchangeRate);
 export default exchangeRateRouter;
