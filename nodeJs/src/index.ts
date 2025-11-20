@@ -1,3 +1,7 @@
+import 'dotenv/config';
+import express from 'express';
+import apiRoutes from './routes/api';
+import exchangeRateRouter from './routes/exchangeRate.route';
 import express from 'express';
 import dotenv from 'dotenv';
 import apiRoutes from './routes/api';
@@ -23,7 +27,9 @@ app.get('/', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/translation', translationRoutes);
+app.use('/api/exchangeRates', exchangeRateRouter)
 app.use('/api', apiRoutes);
+// 추후 router 추가 예정
 
 const startServer = async () => {
   try {
