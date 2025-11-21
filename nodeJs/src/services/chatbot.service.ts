@@ -24,7 +24,18 @@ class ChatBotService {
       sessionId = session.id;
     }
 
-    // 3. FastAPI 호출
+    // 3. 이전 대화의 completion_id 조회 (대화 맥락 연결용)
+    const allMessages = await chatBotModel.getChatHistory(sessionId, 20);
+    // 가장 최근 bot 메시지에서 completion_id 가져오기 (역순으로 탐색)
+    let previousCompletionId: string | undefined = undefined;
+    for (let i = allMessages.length - 1; i >= 0; i--) {
+      if (allMessages[i].role === 'bot' && allMessages[i].openai_completion_id) {
+        previousCompletionId = allMessages[i].openai_completion_id;
+        break;
+      }
+    }
+
+    // 4. FastAPI 호출
     let fastApiResponse: FastAPIResponse;
     try {
       const response = await axios.post<FastAPIResponse>(
@@ -50,18 +61,22 @@ class ChatBotService {
       throw new Error("Failed to process chat message");
     }
 
-    // 4. DB에 저장 (JSON 형태로)
+    // 5. DB에 저장 (JSON 형태로)
+    // user 메시지는 이전 봇의 completion_id를 상속
     await chatBotModel.saveMessageToSession(
       sessionId,
       "user",
       JSON.stringify({ message: message }),
-      // null
+      previousCompletionId
     );
+
+    // bot 메시지는 새로운 completion_id 저장 (content에서는 chat_completion_id 제외)
+    const { chat_completion_id, ...botContentWithoutId } = fastApiResponse;
     await chatBotModel.saveMessageToSession(
       sessionId,
       "bot",
-      JSON.stringify(fastApiResponse),
-      // null
+      JSON.stringify(botContentWithoutId),
+      fastApiResponse.chat_completion_id
     );
     return fastApiResponse;
   }
