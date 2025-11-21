@@ -21,7 +21,7 @@ export interface NcpDirectionsApiResponse {
   code: number; // API 응답 코드 (0이 성공)
   message: string;
   route: {
-    traavoid: {
+    traoptimal: {
       summary: {
         distance: number; // 미터(m)
         duration: number; // 밀리초(ms)

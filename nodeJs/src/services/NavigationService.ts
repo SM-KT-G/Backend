@@ -7,7 +7,7 @@ import {
 
 // 네이버 Directions 5 API (자동차 경로) - 일반 클라우드
 const NAVER_DIRECTIONS_API_URL =
-  "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving";
+  "https://maps.apigw.ntruss.com/map-direction/v1/driving";
 
 // 캐시 TTL (밀리초) - 기본 5분
 const CACHE_TTL = 5 * 60 * 1000;
@@ -107,7 +107,7 @@ class NavigationService {
       }
 
       // 2. 경로 정보가 없는 경우
-      if (!data.route || !data.route.traavoid || data.route.traavoid.length === 0) {
+      if (!data.route || !data.route.traoptimal || data.route.traoptimal.length === 0) {
         console.error(
           "API Error (Navigation): Received code 0 but no routes found."
         );
@@ -115,7 +115,7 @@ class NavigationService {
       }
 
       // [매핑 로직]
-      const routeSummary = data.route.traavoid[0].summary;
+      const routeSummary = data.route.traoptimal[0].summary;
 
       const routeInfo: RouteInfo = {
         totalDistance: routeSummary.distance,
@@ -179,7 +179,6 @@ class NavigationService {
 
   private toRad(degrees: number): number {
     return degrees * (Math.PI / 180);
-  }
   }
 }
 

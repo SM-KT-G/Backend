@@ -7,9 +7,15 @@
 import 'dotenv/config';
 import axios from 'axios';
 
-const API_URL = 'https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving';
+const API_URL = 'https://maps.apigw.ntruss.com/map-direction/v1/driving';
 const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
 const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
+
+// 👇 API 키 로그 확인
+console.log('--------------------');
+console.log('내 코드의 ID:', NAVER_CLIENT_ID); 
+console.log('내 코드의 SECRET:', NAVER_CLIENT_SECRET);
+console.log('--------------------');
 
 if (!NAVER_CLIENT_ID || !NAVER_CLIENT_SECRET) {
   console.error('❌ NAVER_CLIENT_ID 또는 NAVER_CLIENT_SECRET이 .env 파일에 설정되지 않았습니다.');
