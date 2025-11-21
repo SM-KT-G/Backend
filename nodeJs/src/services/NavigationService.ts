@@ -107,15 +107,30 @@ class NavigationService {
       }
 
       // 2. 경로 정보가 없는 경우
-      if (!data.route || !data.route.traoptimal || data.route.traoptimal.length === 0) {
+      if (!data.route) {
         console.error(
-          "API Error (Navigation): Received code 0 but no routes found."
+          "API Error (Navigation): Received code 0 but no route data."
         );
         throw new Error("경로 정보를 찾을 수 없습니다. 출발지와 도착지를 확인해주세요.");
       }
 
-      // [매핑 로직]
-      const routeSummary = data.route.traoptimal[0].summary;
+      // [매핑 로직] 우선순위: traoptimal > trafast > traavoid
+      let routeSummary;
+      if (data.route.traoptimal && data.route.traoptimal.length > 0) {
+        routeSummary = data.route.traoptimal[0].summary;
+        console.log('Using traoptimal route (최적 경로)');
+      } else if (data.route.trafast && data.route.trafast.length > 0) {
+        routeSummary = data.route.trafast[0].summary;
+        console.log('Using trafast route (빠른 경로)');
+      } else if (data.route.traavoid && data.route.traavoid.length > 0) {
+        routeSummary = data.route.traavoid[0].summary;
+        console.log('Using traavoid route (무료 경로)');
+      } else {
+        console.error(
+          "API Error (Navigation): No route options available."
+        );
+        throw new Error("경로 정보를 찾을 수 없습니다. 출발지와 도착지를 확인해주세요.");
+      }
 
       const routeInfo: RouteInfo = {
         totalDistance: routeSummary.distance,
