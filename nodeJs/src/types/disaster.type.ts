@@ -12,3 +12,5 @@ export interface disasterResponse {
     reportedAt: Date;
     message: string;
 }
+
+//deprecated
