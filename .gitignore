@@ -1,2 +1,9 @@
-node_modules
+# Node.js
+nodeJs/node_modules/
+nodeJs/.env
+node_modules/
 .env
+
+# 기타
+.DS_Store
+*.log
