@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * 서비스가 프론트엔드에 제공할 가공된 날씨 정보 (최종 반환 타입)
  * (공공데이터 API 기반으로 수정됨)
@@ -32,28 +31,10 @@ export interface KMAUltraShortTermLiveResponse {
       };
       totalCount: number;
     };
-=======
-// src/types/weather.types.ts
-
-/**
- * OpenWeatherMap API 원본 응답 인터페이스
- */
-export interface OpenWeatherApiResponse {
-  weather: {
-    description: string;
-    icon: string;
-  }[]; // [수정] 튜플 -> 유연한 배열
-  main: {
-    temp: number;
-    feels_like: number;
-    temp_min: number;
-    temp_max: number;
->>>>>>> origin/feature/Weather
   };
 }
 
 /**
-<<<<<<< HEAD
  * '초단기실황조회' API의 개별 아이템
  * (T1H, RN1, SKY, PTY 등의 코드로 옴)
  */
@@ -86,15 +67,4 @@ export interface CombinedWeatherInfo {
   weather: WeatherInfo;
   advisory: AdvisoryInfo;
   airQuality: AirQualityInfo;
-=======
- * 서비스가 프론트엔드에 제공할 가공된 날씨 정보
- */
-export interface WeatherInfo {
-  temp: number;
-  feels_like: number;
-  temp_min: number;
-  temp_max: number;
-  description: string;
-  icon: string;
->>>>>>> origin/feature/Weather
 }
