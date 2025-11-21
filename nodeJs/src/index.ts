@@ -6,6 +6,7 @@ import translationRoutes from './routes/translation.route';
 import apiRoutes from './routes/api';
 import authRoutes from './routes/auth.router';
 import chatbotRoutes from './routes/chatbot.router';
+import cors from 'cors';
 
 // 환경변수 로드
 dotenv.config();
@@ -13,6 +14,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors())
 // Middleware
 app.use(express.json());
 
