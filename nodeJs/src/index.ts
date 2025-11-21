@@ -6,6 +6,7 @@ import translationRoutes from './routes/translation.route';
 import apiRoutes from './routes/api';
 import authRoutes from './routes/auth.router';
 import chatbotRoutes from './routes/chatbot.router';
+import disasterRouter from './routes/disaster.router';
 
 // 환경변수 로드
 dotenv.config();
@@ -24,7 +25,8 @@ app.get('/', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/translation', translationRoutes);
-app.use('/api/exchangeRates', exchangeRateRouter)
+app.use('/api/exchangeRates', exchangeRateRouter);
+app.use('/api/disaster', disasterRouter);
 app.use('/api', apiRoutes);
 // 추후 router 추가 예정
 
