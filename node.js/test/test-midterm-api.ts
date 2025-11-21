@@ -10,7 +10,12 @@ import { GeoConverter } from '../src/utils/GeoConverter';
 
 const LAND_API_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst';
 const TEMP_API_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa';
-const SERVICE_KEY = process.env.PUBLIC_DATA_KEY || '19883038094b9f0ea6ab463e24cde26cb6becec2e13f989b2098e9df1fa197f3';
+const SERVICE_KEY = process.env.PUBLIC_DATA_KEY;
+
+if (!SERVICE_KEY) {
+  console.error('❌ PUBLIC_DATA_KEY가 .env 파일에 설정되지 않았습니다.');
+  process.exit(1);
+}
 
 // 테스트 좌표 (서울 시청)
 const TEST_LAT = 37.5665;
