@@ -119,35 +119,21 @@ class WeatherService {
    */
   private getKmaBaseTime(): { base_date: string; base_time: string } {
     const now = new Date();
-    // 40분 전 시간으로 설정 (API 데이터 생성 시간 고려)
-    now.setMinutes(now.getMinutes() - 40); 
-
+    
+    // API는 매시 30분에 생성됨 (예: 12:30)
+    // 현재 시간이 40분 이전이면 이전 시간대 데이터 요청
+    if (now.getMinutes() < 40) {
+      now.setHours(now.getHours() - 1);
+    }
+    
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     const day = now.getDate().toString().padStart(2, '0');
-    // '초단기실황'은 30분 단위로 생성됨 (예: 1230)
     const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = "30"; // 30분 단위 데이터 요청
-
-    // 만약 00시 40분 전(전날 23시)이라면 날짜도 하루 빼야 함
-    const base_date = `${year}${month}${day}`;
-    // 12시 20분 -> 11시 40분 -> 1130 요청
-    // 12시 47분 -> 12시 07분 -> 1200 요청 -> (수정) 1230 요청이 맞음.
-    // API는 매시 30분에 생성됨 (예: 12:30). 12:47분에는 12:30 데이터를, 12:20분에는 11:30 데이터를 요청해야 함.
-    // 로직을 단순화: 현재 시간에서 1시간을 뺀 시간의 30분 데이터를 요청
-    const queryTime = new Date();
-    if (queryTime.getMinutes() < 40) { // 40분 이내라면 이전 시간대 데이터가 안정적
-      queryTime.setHours(queryTime.getHours() - 1);
-    }
-    
-    const queryYear = queryTime.getFullYear();
-    const queryMonth = (queryTime.getMonth() + 1).toString().padStart(2, '0');
-    const queryDay = queryTime.getDate().toString().padStart(2, '0');
-    const queryHours = queryTime.getHours().toString().padStart(2, '0');
 
     return {
-      base_date: `${queryYear}${queryMonth}${queryDay}`,
-      base_time: `${queryHours}30`, // 매시 30분 데이터 요청
+      base_date: `${year}${month}${day}`,
+      base_time: `${hours}30`, // 매시 30분 데이터 요청
     };
   }
 
