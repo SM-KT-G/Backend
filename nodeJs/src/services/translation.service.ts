@@ -5,7 +5,7 @@ class TranslationService {
   static async translateJapaneseToKorean(
     request: TranslationRequestData
   ): Promise<TranslationResponse> {
-    const { text, sourceLang = "ja", targetLang = "ko" } = request;
+    const { text, sourceLang = "ko", targetLang = "ja" } = request;
 
     if (!text || text.trim().length === 0) {
       throw new Error("번역할 텍스트가 비어있습니다.");
