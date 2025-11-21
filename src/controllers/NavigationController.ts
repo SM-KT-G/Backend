@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 // 1번 파일(서비스)을 import
 import navigationService from '../services/NavigationService'; 
 // 4번 파일(타입)을 import
-import { Coordinates } from '../types/navigation.types'; 
+import { Coordinates } from '../types/navigation.types';
 
 class NavigationController {
   /**
