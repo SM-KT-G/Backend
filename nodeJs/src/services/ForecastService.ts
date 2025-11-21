@@ -274,7 +274,7 @@ class ForecastService {
         case 'TMP': entry.temp = parseFloat(item.fcstValue); break;
         case 'POP': entry.rainProbability = parseInt(item.fcstValue); break;
         case 'SKY': entry.sky = this.getSkyState(item.fcstValue); break;
-        case 'PTY': entry.rainType = this.getRainType(KMA_PTY_CODE, item.fcstValue); break;
+        case 'PTY': entry.rainType = this.getRainType(item.fcstValue); break;
       }
     });
 
@@ -314,8 +314,8 @@ class ForecastService {
     }
   }
 
-  private getRainType = (type: any, code: string): string => {
-    return type[code] || '없음';
+  private getRainType = (code: string): string => {
+    return KMA_PTY_CODE[code] || '없음';
   }
 }
 
