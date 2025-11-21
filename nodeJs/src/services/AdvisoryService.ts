@@ -50,14 +50,19 @@ class AdvisoryService {
     console.log(`[Cache] MISS: Fetching new weather advisory for ${cacheKey}`);
 
     try {
+      // 최근 6일간의 특보 조회 (API 제한)
+      const { fromDate, toDate } = this.getDateRange();
+      
       const response = await axios.get<KMAAdvisoryResponse>(
         KMA_ADVISORY_URL,
         {
           params: {
             serviceKey: KMA_SERVICE_KEY,
             dataType: 'JSON',
-            stnId: stnId, // "109" (서울/경기), "108" (전국) 등
-            numOfRows: 10,
+            stnId: stnId, // "108" (서울) 등
+            fromTmFc: fromDate, // YYYYMMDD
+            toTmFc: toDate, // YYYYMMDD
+            numOfRows: 100,
             pageNo: 1,
           },
         }
@@ -114,6 +119,26 @@ class AdvisoryService {
   }
 
   /**
+   * (Private) 최근 6일 날짜 범위 계산
+   */
+  private getDateRange(): { fromDate: string; toDate: string } {
+    const today = new Date();
+    const sixDaysAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
+    
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}${month}${day}`;
+    };
+    
+    return {
+      fromDate: formatDate(sixDaysAgo),
+      toDate: formatDate(today),
+    };
+  }
+
+  /**
    * (Private) 특보 API 응답(item 배열)을 AdvisoryInfo로 가공
    */
   private parseAdvisoryData(items?: KMAAdvisoryItem[]): AdvisoryInfo {
@@ -121,20 +146,27 @@ class AdvisoryService {
       return { warning: false, details: '현재 발효 중인 특보가 없습니다.' };
     }
 
-    // "발표"(warC=1) 상태인 특보만 필터링
-    const activeWarnings = items.filter(item => item.warC === '1');
+    // 배열 변환
+    const itemArray = Array.isArray(items) ? items : [items];
+
+    // 특보(warFc=1) 상태인 것만 필터링
+    const activeWarnings = itemArray.filter(item => item.warFc === '1');
 
     if (activeWarnings.length === 0) {
       return { warning: false, details: '현재 발효 중인 특보가 없습니다.' };
     }
 
     // 가장 최신 특보(tmSeq가 가장 큰)의 내용을 반환
-    const latestWarning = activeWarnings.sort((a, b) => b.tmSeq - a.tmSeq)[0];
+    const latestWarning = activeWarnings.sort(
+      (a, b) => parseInt(b.tmSeq) - parseInt(a.tmSeq)
+    )[0];
     
-    // API 응답의 warCpy 필드에 특보 내용이 텍스트로 들어있음
+    // t6 필드에 현재 발효중인 특보 현황이 들어있음
+    const details = latestWarning.t6 || latestWarning.t1 || '특보 정보 없음';
+    
     return {
       warning: true,
-      details: latestWarning.warCpy.replace(' O ', ': '), // "O"를 ":"로 치환
+      details: details.replace(/o /g, '').trim(), // "o " 제거
     };
   }
 }
