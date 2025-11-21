@@ -24,9 +24,8 @@ app.get('/', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/translation', translationRoutes);
-app.use('/api/exchangeRates', exchangeRateRouter)
+app.use('/api/exchangeRates', exchangeRateRouter);
 app.use('/api', apiRoutes);
-// 추후 router 추가 예정
 
 const startServer = async () => {
   try {
