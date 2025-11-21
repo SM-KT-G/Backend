@@ -1,14 +1,14 @@
 /**
- * 기상청 기상특보 API 테스트
+ * 기상청 기상특보 통보문 API 테스트
  * 
  * 실행: npx ts-node test/test-advisory-api.ts
  */
 
 import 'dotenv/config';
 import axios from 'axios';
-import { GeoConverter } from '../src/utils/GeoConverter';
 
-const API_URL = 'https://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnList';
+// 기상특보 통보문 조회 API
+const API_URL = 'https://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnMsg';
 const SERVICE_KEY = process.env.PUBLIC_DATA_KEY;
 
 if (!SERVICE_KEY) {
@@ -16,95 +16,97 @@ if (!SERVICE_KEY) {
   process.exit(1);
 }
 
-// 테스트 좌표 (서울 시청)
-const TEST_LAT = 37.5665;
-const TEST_LON = 126.9780;
-
-// stnId 매핑 테이블
-const STNID_MAP: { [key: string]: string } = {
-  '서울': '109', '인천': '109', '경기': '109',
-  '강원': '105',
-  '충북': '131', '충남': '131', '대전': '131', '세종': '131',
-  '전북': '146',
-  '전남': '156', '광주': '156',
-  '경북': '143', '대구': '143',
-  '경남': '159', '부산': '159', '울산': '159',
-  '제주': '184',
-};
-
 async function testAdvisoryAPI() {
   console.log('\n===========================================');
-  console.log('⚠️  기상청 기상특보 API 테스트');
+  console.log('⚠️  기상청 기상특보 통보문 API 테스트');
   console.log('===========================================\n');
 
   try {
-    // 1. 좌표로 지역명 획득
-    const regionCodes = GeoConverter.getRegionCodes(TEST_LAT, TEST_LON);
-    const regionName = regionCodes.name;
-    const stnId = STNID_MAP[regionName] || '108'; // 기본값: 전국
+    // 오늘 날짜 기준으로 최근 6일간의 특보 조회 (API 제한)
+    const now = new Date();
+    const sixDaysAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
     
-    console.log(`✓ 지역: ${regionName}`);
-    console.log(`✓ 특보 관측소 코드(stnId): ${stnId}\n`);
-
-    // 2. API 호출
-    console.log('📡 API 요청 중...');
+    // 날짜 형식: YYYYMMDD (년월일만)
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}${month}${day}`;
+    };
+    
+    const fromDate = formatDate(sixDaysAgo);
+    const toDate = formatDate(now);
+    
+    console.log(`📅 조회 기간: ${fromDate} ~ ${toDate} (최근 6일)`);
+    console.log('📍 지점: 108 (서울)');
+    console.log('📡 API 요청 중...\n');
+    
     const response = await axios.get(API_URL, {
       params: {
         serviceKey: SERVICE_KEY,
-        dataType: 'JSON',
-        stnId: stnId,
-        numOfRows: 10,
         pageNo: 1,
+        numOfRows: 100,
+        dataType: 'JSON',
+        stnId: '108', // 서울 지점 (필수)
+        fromTmFc: fromDate,
+        toTmFc: toDate,
       },
     });
 
-    // 3. 응답 확인
-    console.log(`✓ 응답 코드: ${response.data.response.header.resultCode}`);
-    console.log(`✓ 응답 메시지: ${response.data.response.header.resultMsg}`);
+    // 응답 확인
+    const header = response.data.response.header;
+    console.log(`✅ 응답 성공!`);
+    console.log(`응답 코드: ${header.resultCode}`);
+    console.log(`응답 메시지: ${header.resultMsg}\n`);
 
     const items = response.data?.response?.body?.items?.item;
     
     if (!items || items.length === 0) {
-      console.log('\n📊 현재 발효 중인 기상특보가 없습니다.\n');
-      console.log('✅ 기상청 기상특보 API 테스트 성공!\n');
+      console.log('📊 조회 기간 내 발령된 기상특보가 없습니다.');
+      console.log('✅ API 호출은 성공했으나 현재 특보 없음\n');
       return;
     }
 
-    console.log(`✓ 받은 데이터: ${items.length}개 항목\n`);
+    // 배열로 변환
+    const itemArray = Array.isArray(items) ? items : [items];
+    console.log(`✓ 받은 데이터: ${itemArray.length}개 특보 통보문\n`);
 
-    // 4. 받은 항목 확인 (첫 번째 항목의 키)
-    if (items.length > 0) {
-      console.log('📋 받은 항목 필드:', Object.keys(items[0]).join(', '));
-      console.log('');
-    }
-
-    // 5. 발표 중인 특보 필터링 (warC=1)
-    const activeWarnings = items.filter((item: any) => item.warC === '1');
-
-    console.log('📊 기상특보 현황:');
-    console.log('-------------------------------------------');
-
-    if (activeWarnings.length === 0) {
-      console.log('   현재 발효 중인 특보가 없습니다.');
-    } else {
-      // 최신 특보부터 출력
-      activeWarnings
-        .sort((a: any, b: any) => b.tmSeq - a.tmSeq)
-        .forEach((item: any, index: number) => {
-          console.log(`\n   [특보 ${index + 1}]`);
-          console.log(`   발표번호: ${item.tmSeq}`);
-          console.log(`   내용: ${item.warCpy.substring(0, 100)}...`);
+    // 받은 항목 확인
+    if (itemArray.length > 0) {
+      console.log('📋 데이터 필드:', Object.keys(itemArray[0]).join(', '));
+      console.log('\n📊 기상특보 통보문 목록:');
+      console.log('===========================================');
+      
+      itemArray.slice(0, 5).forEach((item: any, index: number) => {
+        console.log(`\n[특보 ${index + 1}]`);
+        Object.entries(item).forEach(([key, value]) => {
+          if (value) console.log(`  ${key}: ${value}`);
         });
+      });
+      
+      if (itemArray.length > 5) {
+        console.log(`\n... 외 ${itemArray.length - 5}개 특보 더 있음`);
+      }
     }
 
-    console.log('\n✅ 기상청 기상특보 API 테스트 성공!\n');
+    console.log('\n===========================================');
+    console.log('✅ 기상청 기상특보 통보문 API 테스트 성공!\n');
 
   } catch (error) {
-    console.error('\n❌ API 테스트 실패:', error);
+    console.error('\n❌ API 호출 실패');
     if (axios.isAxiosError(error)) {
-      console.error('   상태 코드:', error.response?.status);
-      console.error('   응답 데이터:', JSON.stringify(error.response?.data, null, 2));
+      console.error(`상태 코드: ${error.response?.status}`);
+      console.error(`에러 메시지: ${error.response?.data?.response?.header?.resultMsg || error.message}`);
+      
+      if (error.response?.status === 403) {
+        console.error('\n💡 403 Forbidden: 공공데이터포털에서 "기상특보조회서비스" 승인 필요');
+      } else if (error.response?.status === 504) {
+        console.error('\n💡 504 Timeout: 서버 응답 시간 초과 (날짜 범위를 줄여보세요)');
+      }
+    } else {
+      console.error('에러:', error);
     }
+    console.log();
   }
 }
 
