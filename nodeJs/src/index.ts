@@ -1,22 +1,24 @@
 import express from 'express';
-import 'dotenv/config'; // .env 파일 로드 (가장 상단에)
-import mainRouter from './routes/index'; // ./routes/index.ts 를 가져옴
-
-// Swagger 모듈 import (API Docs용)
+import 'dotenv/config';
+import cors from 'cors';
+import exchangeRateRouter from './routes/exchangeRate.route';
+import translationRoutes from './routes/translation.route';
+import mainRouter from './routes/index';
+import authRoutes from './routes/auth.router';
+import chatbotRoutes from './routes/chatbot.router';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
+import apiRoutes from './routes/api';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- 미들웨어 설정 ---
 app.use(express.json());
+app.use(cors())
 app.use(express.urlencoded({ extended: true }));
-
-
-// --- 메인 라우트 설정 ---
-app.use('/api', mainRouter);
-
 
 // --- Swagger 설정 ---
 const swaggerOptions = {
@@ -99,14 +101,25 @@ const swaggerOptions = {
   // API 주석이 있는 파일 경로 (모든 Router 파일)
   apis: ['./src/routes/*.ts'], 
 };
-
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
-// '/api-docs' 경로에 Swagger UI를 서빙
+
+app.use('/api/auth', authRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/translation', translationRoutes);
+app.use('/api/exchangeRates', exchangeRateRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use('/api', mainRouter);
+app.use('/api', apiRoutes);
 
+const startServer = async () => {
+  try {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
 
-// --- 서버 시작 ---
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  console.log(`API Docs available at http://localhost:${PORT}/api-docs`);
-});
+startServer();
