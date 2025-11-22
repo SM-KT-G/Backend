@@ -7,3 +7,9 @@ node_modules/
 # 기타
 .DS_Store
 *.log
+node_modules
+.env
+
+# Node.js project files
+nodeJs/node_modules/
+nodeJs/.env
