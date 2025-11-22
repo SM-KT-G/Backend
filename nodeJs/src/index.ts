@@ -6,9 +6,14 @@ import translationRoutes from './routes/translation.route';
 import mainRouter from './routes/index';
 import authRoutes from './routes/auth.router';
 import chatbotRoutes from './routes/chatbot.router';
+import disasterRouter from './routes/disaster.router';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import apiRoutes from './routes/api';
+
+
+// 환경변수 로드
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -116,6 +121,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/translation', translationRoutes);
 app.use('/api/exchangeRates', exchangeRateRouter);
+app.use('/api/disaster', disasterRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api', mainRouter);
 app.use('/api', apiRoutes);
