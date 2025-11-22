@@ -1,0 +1,6 @@
+node_modules
+.env
+
+# Node.js project files
+nodeJs/node_modules/
+nodeJs/.env
