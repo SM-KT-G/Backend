@@ -10,8 +10,6 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import apiRoutes from './routes/api';
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
