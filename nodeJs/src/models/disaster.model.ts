@@ -25,7 +25,7 @@ class DisasterModel {
     const result = await collection
       .find(filter)
       .sort({ SN: -1 })
-      .limit(20)
+      .limit(10)
       .toArray();
 
     console.log(`[DEBUG] Found: ${result.length} docs`);
