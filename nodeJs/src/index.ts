@@ -1,6 +1,7 @@
 import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
+import './config/mongodb'; // MongoDB 연결 초기화
 import exchangeRateRouter from './routes/exchangeRate.route';
 import translationRoutes from './routes/translation.route';
 import mainRouter from './routes/index';
@@ -10,10 +11,6 @@ import disasterRouter from './routes/disaster.router';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import apiRoutes from './routes/api';
-
-
-// 환경변수 로드
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
