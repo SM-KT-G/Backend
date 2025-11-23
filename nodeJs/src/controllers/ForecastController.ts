@@ -3,11 +3,11 @@ import { Request, Response } from 'express';
 import forecastService from '../services/ForecastService';
 
 class ForecastController {
-  
+
   /**
    * (유틸리티) 요청에서 lat, lon을 파싱하고 검증합니다.
    */
-  private parseLatLon(req: Request): { lat: number; lon: number } | { error: string; status: number } {
+  private parseLatLon = (req: Request): { lat: number; lon: number } | { error: string; status: number } => {
     const { lat, lon } = req.query;
 
     if (!lat || !lon) {
@@ -20,7 +20,7 @@ class ForecastController {
     if (isNaN(numLat) || isNaN(numLon)) {
       return { error: 'Invalid lat or lon values', status: 400 };
     }
-    
+
     return { lat: numLat, lon: numLon };
   }
 
@@ -28,7 +28,7 @@ class ForecastController {
    * GET /forecast/short?lat=...&lon=... 요청을 처리합니다.
    * (단기예보: 오늘~모레)
    */
-  async getShortTerm(req: Request, res: Response): Promise<Response> {
+  getShortTerm = async (req: Request, res: Response): Promise<Response> => {
     try {
       // 1. 위도/경도 검증
       const coords = this.parseLatLon(req);
@@ -52,7 +52,7 @@ class ForecastController {
    * GET /forecast/mid?lat=...&lon=... 요청을 처리합니다.
    * (중기예보: 3일~10일)
    */
-  async getMidTerm(req: Request, res: Response): Promise<Response> {
+  getMidTerm = async (req: Request, res: Response): Promise<Response> => {
     try {
       // 1. 위도/경도 검증
       const coords = this.parseLatLon(req);
