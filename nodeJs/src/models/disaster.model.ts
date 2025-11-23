@@ -24,7 +24,7 @@ class DisasterModel {
 
     const result = await collection
       .find(filter)
-      .sort({ SN: -1 })
+      .sort({ CRT_DT: -1 })
       .limit(10)
       .toArray();
 
