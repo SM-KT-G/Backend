@@ -3,7 +3,7 @@ export interface ItineraryRequest {
     days: number;
     categories: string[];
     transportation: string;
-    mustInclude?: string;
+    mustInclude?: string[];
 }
 
 export interface ItinerarySegment {
