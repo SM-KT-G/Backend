@@ -4,6 +4,11 @@ import { ItineraryRequest, ItineraryResponse } from '../types/itinerary.type';
 const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL;
 
 // 미완성입니다
+/**
+ * ItineraryService
+ * FastAPI의 여행 일정 생성 API와 통신하는 서비스 레이어
+ * - generateItinerary: 여행 일정 생성 요청을 FastAPI에 전달하고 응답을 반환
+ */
 class ItineraryService {
     static async generateItinerary(data: ItineraryRequest): Promise<ItineraryResponse> {
         try {
