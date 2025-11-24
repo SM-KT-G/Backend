@@ -1,6 +1,7 @@
 import itineraryService from '../services/itinerary.service';
 import { Request, Response } from 'express';
 
+// 미완성 입니다.
 class ItineraryController {
     static async generateItinerary(req: Request, res: Response) {
         try {
