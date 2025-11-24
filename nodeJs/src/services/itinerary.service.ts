@@ -3,6 +3,7 @@ import { ItineraryRequest, ItineraryResponse } from '../types/itinerary.type';
 
 const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL;
 
+// 미완성입니다
 class ItineraryService {
     static async generateItinerary(data: ItineraryRequest): Promise<ItineraryResponse> {
         try {
@@ -11,12 +12,11 @@ class ItineraryService {
                 {
                     region: data.region,
                     themes: data.mustInclude || "", 
-                    duration_days: data.days,  // 변경
-                    domains: data.categories,  // 변경
+                    duration_days: data.days,
+                    domains: data.categories,
                     transport_mode: data.transportation,
                 }
             );
-
             return response.data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
