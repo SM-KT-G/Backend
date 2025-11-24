@@ -7,13 +7,13 @@ class ItineraryService {
     static async generateItinerary(data: ItineraryRequest): Promise<ItineraryResponse> {
         try {
             const response = await axios.post<ItineraryResponse>(
-                `${FASTAPI_BASE_URL}/recommend`,
+                `${FASTAPI_BASE_URL}/recommend/itinerary`,
                 {
                     region: data.region,
-                    days: data.days,
-                    categories: data.categories,
-                    transportation: data.transportation,
-                    must_include: data.mustInclude || ''
+                    themes: data.mustInclude || "", 
+                    duration_days: data.days,  // 변경
+                    domains: data.categories,  // 변경
+                    transport_mode: data.transportation,
                 }
             );
 
